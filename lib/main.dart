@@ -42,7 +42,7 @@ class _NewNavigationState extends State<NewNavigation> {
   int _currentIndex =0;
   List _pages = [
     ProfileScreen(),
-    ConversationScreen(),
+    ChattingScreen(),
     SettingScreen()
   ];
   @override

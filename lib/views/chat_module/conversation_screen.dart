@@ -1,17 +1,18 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smit_chat/views/chat_module/chat_screen.dart';
-import 'package:smit_chat/views/chat_module/profile_screen.dart';
-import 'package:smit_chat/views/chat_module/setting_screen.dart';
 
-class ConversationScreen extends StatefulWidget {
-  const ConversationScreen({super.key});
+class ChattingScreen extends StatefulWidget {
+  const ChattingScreen({super.key});
 
   @override
-  State<ConversationScreen> createState() => _ConversationScreenState();
+  State<ChattingScreen> createState() => _ChattingScreenState();
 }
 
-class _ConversationScreenState extends State<ConversationScreen> {
+class _ChattingScreenState extends State<ChattingScreen> {
+  TextEditingController searchController = TextEditingController();
+
   List<String> images = [
     'assets/images/y.jpg',
     'assets/images/y.jpg',
@@ -21,7 +22,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     'assets/images/y.jpg',
     'assets/images/y.jpg',
   ];
-  List<String> names = ['Yaseen Malik','Ali','Asad','Noman','Bob','John','Jane'];
+  List<String> names = ['Yaseen Malik', 'Ali', 'Asad', 'Noman', 'Bob', 'John', 'Jane'];
   List<String> subTitle = [
     'What is the condition of product',
     'What is the condition of product',
@@ -30,9 +31,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
     'What is the condition of product',
     'What is the condition of product',
     'What is the condition of product',
-
   ];
-  List<String> time = ['7 jan','6 jan','10 jan','12 jan','15 jan','3 jan','8 jan'];
+  List<String> time = ['7 Jan', '6 Jan', '10 Jan', '12 Jan', '15 Jan', '3 Jan', '8 Jan'];
+
+  List<String> filteredNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredNames = List.from(names);
+  }
+
+  void filterSearch(String query) {
+    setState(() {
+      filteredNames = query.isEmpty
+          ? List.from(names)
+          : names.where((name) => name.toLowerCase().contains(query.toLowerCase())).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -40,50 +57,77 @@ class _ConversationScreenState extends State<ConversationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 5,),
-          Text('chat',style: GoogleFonts.poppins(fontSize: 21,fontWeight: FontWeight.bold),),
-          SizedBox(height: 10,),
+          const SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: Text(
+              'Chat',
+              style: GoogleFonts.poppins(fontSize: 23, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 10),
           Container(
             width: double.infinity,
             height: 50,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey)
+              border: Border.all(color: Colors.grey),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 children: [
-                  Icon(Icons.search_off_rounded),
-                  SizedBox(width: 10,),
-                  Text('Search',style: GoogleFonts.poppins(fontSize: 16),),
+                  const Icon(Icons.search),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: filterSearch,
+                      decoration: const InputDecoration(
+                        hintText: "Search by name",
+                        border: InputBorder.none,
+                      ),
+                      style: GoogleFonts.poppins(fontSize: 16),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10,),
           Expanded(
             child: ListView.builder(
-              itemCount: 7,
-                itemBuilder: (context,index){
-                  return Container(
-                    child: GestureDetector(
-                      onTap: (){
-                       Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(image: images[index], names: names[index],)));
-                      },
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: AssetImage(images[index]),
-                        ),
-                        title: Text(names[index],style: GoogleFonts.poppins(fontSize: 18,fontWeight: FontWeight.w500),),
-                        subtitle: Text(subTitle[index]),
-                        trailing: Text(time[index],style: GoogleFonts.poppins(),),
+              padding: EdgeInsets.zero,
+              itemCount: filteredNames.length,
+              itemBuilder: (context, index) {
+                int originalIndex = names.indexOf(filteredNames[index]); // Get original index
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatScreen(image: images[index], names: names[index])
                       ),
+                    );
+                  },
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    leading: CircleAvatar(
+                      backgroundImage: AssetImage(images[originalIndex]),
                     ),
-                  );
-
-                }),
-          )
+                    title: Text(
+                      names[originalIndex],
+                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
+                    subtitle: Text(subTitle[originalIndex]),
+                    trailing: Text(
+                      time[originalIndex],
+                      style: GoogleFonts.poppins(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
